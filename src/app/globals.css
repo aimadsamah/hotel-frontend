@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gold: #C9A96E;
+    --gold-light: #E0C896;
+    --gold-dark: #9A7A3A;
+    --obsidian: #0d0b09;
+    --obsidian-light: #1a1714;
+    --cream: #fdfaf5;
+    --cream-muted: #f4e4c8;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--obsidian);
+    color: var(--cream);
+  }
+
+  ::selection {
+    background-color: var(--gold);
+    color: var(--obsidian);
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--obsidian-light);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--gold-dark);
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .section-label {
+    @apply font-mono text-gold-500 tracking-widest text-xs uppercase;
+  }
+
+  .section-title {
+    @apply font-display text-4xl md:text-5xl lg:text-6xl font-light text-cream-50 leading-tight;
+  }
+
+  .section-title-sm {
+    @apply font-display text-3xl md:text-4xl font-light text-cream-50 leading-tight;
+  }
+
+  .gold-divider {
+    @apply w-16 h-px bg-gold-500 my-6;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-3 px-8 py-4 bg-gold-500 text-obsidian-950
+           font-sans font-medium tracking-widest text-xs uppercase
+           transition-all duration-300 hover:bg-gold-400 hover:gap-4
+           focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 focus:ring-offset-obsidian-950;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center gap-3 px-8 py-4 border border-gold-500/60 text-gold-400
+           font-sans font-medium tracking-widest text-xs uppercase
+           transition-all duration-300 hover:border-gold-400 hover:text-gold-300 hover:gap-4
+           focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 focus:ring-offset-obsidian-950;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 text-gold-400 font-sans font-medium
+           tracking-widest text-xs uppercase transition-all duration-300
+           hover:text-gold-300 hover:gap-3;
+  }
+
+  .input-luxury {
+    @apply w-full bg-transparent border-b border-obsidian-700 text-cream-50
+           font-sans text-sm py-3 px-0 placeholder-obsidian-500
+           focus:outline-none focus:border-gold-500 transition-colors duration-300;
+  }
+
+  .input-luxury-box {
+    @apply w-full bg-obsidian-900 border border-obsidian-700 text-cream-50
+           font-sans text-sm py-3 px-4 placeholder-obsidian-500
+           focus:outline-none focus:border-gold-500 transition-colors duration-300;
+  }
+
+  .card-luxury {
+    @apply bg-obsidian-900 border border-obsidian-800 transition-all duration-500
+           hover:border-gold-500/30;
+  }
+
+  .page-hero {
+    @apply relative h-[50vh] min-h-[400px] flex items-end overflow-hidden;
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      theme('colors.obsidian.900') 0px,
+      theme('colors.obsidian.800') 40px,
+      theme('colors.obsidian.900') 80px
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .writing-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .mask-gradient-b {
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  }
+}
+
+/* Framer Motion will handle complex animations; these are CSS-only utility animations */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Gold line animated accent */
+.gold-line-in {
+  position: relative;
+}
+.gold-line-in::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 1px;
+  width: 0;
+  background: var(--gold);
+  transition: width 0.4s ease;
+}
+.gold-line-in:hover::after {
+  width: 100%;
+}
+
+/* ─── Arabic / RTL Support ─────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;500;600&display=swap');
+
+:root {
+  --font-arabic-display: 'Amiri', serif;
+  --font-arabic-sans: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] {
+  font-family: 'Cairo', var(--font-jost), system-ui, sans-serif;
+}
+
+[dir="rtl"] .font-display,
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3 {
+  font-family: 'Amiri', var(--font-cormorant), serif;
+}
+
+[dir="rtl"] .font-mono {
+  font-family: 'Cairo', var(--font-dm-mono), monospace;
+  letter-spacing: 0 !important;
+}
+
+/* RTL layout helpers */
+[dir="rtl"] .gold-divider {
+  margin-right: 0;
+  margin-left: auto;
+}
+[dir="rtl"] .btn-primary,
+[dir="rtl"] .btn-outline,
+[dir="rtl"] .btn-ghost {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .writing-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+[dir="rtl"] .gold-line-in::after {
+  left: auto;
+  right: 0;
+}
+
+/* Arabic typography tweaks */
+[lang="ar"] .section-label {
+  letter-spacing: 0;
+  font-size: 11px;
+}
+[lang="ar"] .section-title {
+  line-height: 1.4;
+}
