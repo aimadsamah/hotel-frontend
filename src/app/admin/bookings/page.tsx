@@ -299,9 +299,9 @@ function BookingsTable() {
         id,
         data: { status: status as Booking["status"] },
       }).unwrap();
-      toast.success(t.admin?.updateSuccess || "Statut mis à jour");
+      toast.success((t.admin as any)?.updateSuccess || "Statut mis à jour");
     } catch {
-      toast.error(t.admin?.updateError || "Échec de la mise à jour");
+      toast.error((t.admin as any)?.updateError || "Échec de la mise à jour");
     }
   };
 
