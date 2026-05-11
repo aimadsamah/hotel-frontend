@@ -250,7 +250,7 @@
 
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Fragment } from "react";
 import toast from "react-hot-toast";
 import {
   useGetBookingsQuery,
@@ -275,8 +275,7 @@ const badgeVariant = (s: string) => {
   }
 };
 
-// Composant interne pour isoler la logique et permettre le Suspense si besoin
-function BookingsTable() {
+export default function AdminBookingsPage() {
   const { t } = useI18n();
   const [statusFilter, setStatusFilter] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -287,7 +286,12 @@ function BookingsTable() {
   const [updateBooking] = useUpdateBookingMutation();
 
   const bookings: Booking[] = data?.data?.bookings || [];
-  const stats = (data?.data?.stats as any[]) || [];
+  const stats =
+    (data?.data?.stats as Array<{
+      _id: string;
+      count: number;
+      totalRevenue: number;
+    }>) || [];
 
   const totalRevenue = stats
     .filter((s) => s._id !== "cancelled")
@@ -299,14 +303,14 @@ function BookingsTable() {
         id,
         data: { status: status as Booking["status"] },
       }).unwrap();
-      toast.success((t.admin as any)?.updateSuccess || "Statut mis à jour");
+      toast.success("Statut mis à jour");
     } catch {
-      toast.error((t.admin as any)?.updateError || "Échec de la mise à jour");
+      toast.error("Échec de la mise à jour");
     }
   };
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-500">
       <div className="mb-8">
         <p className="section-label mb-2">{t.admin.managementLabel}</p>
         <h1 className="font-display text-4xl font-light text-cream-50">
@@ -315,7 +319,7 @@ function BookingsTable() {
         <div className="gold-divider" />
       </div>
 
-      {/* Statistiques */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {statusOptions.map((status) => {
           const stat = stats.find((s) => s._id === status);
@@ -333,7 +337,7 @@ function BookingsTable() {
         })}
       </div>
 
-      {/* Revenu Total */}
+      {/* Revenue Banner */}
       <div className="bg-obsidian-900 border border-gold-500/20 p-5 mb-8">
         <p className="font-mono text-[10px] text-gold-500 tracking-widest uppercase mb-1">
           {t.admin.totalRevenue}
@@ -343,7 +347,7 @@ function BookingsTable() {
         </p>
       </div>
 
-      {/* Filtres */}
+      {/* Filter Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         {["", ...statusOptions].map((s) => (
           <button
@@ -360,19 +364,19 @@ function BookingsTable() {
         ))}
       </div>
 
-      {/* Table des réservations */}
+      {/* Bookings Table */}
       <div className="bg-obsidian-900 border border-obsidian-800 overflow-hidden">
         {isLoading ? (
-          <div className="p-6 space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-14 w-full bg-obsidian-800" />
+          <div className="p-6 space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full bg-obsidian-800" />
             ))}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-obsidian-700 text-left">
+                <tr className="border-b border-obsidian-700">
                   {[
                     t.admin.guest,
                     t.admin.room,
@@ -384,7 +388,7 @@ function BookingsTable() {
                   ].map((h) => (
                     <th
                       key={h}
-                      className="font-mono text-[10px] tracking-widest text-obsidian-400 uppercase px-5 py-4"
+                      className="font-mono text-[10px] tracking-widest text-obsidian-400 uppercase text-left px-5 py-4"
                     >
                       {h}
                     </th>
@@ -393,7 +397,7 @@ function BookingsTable() {
               </thead>
               <tbody>
                 {bookings.map((booking) => (
-                  <React.Fragment key={booking._id}>
+                  <Fragment key={booking._id}>
                     <tr
                       className="border-b border-obsidian-800 hover:bg-obsidian-800/50 transition-colors cursor-pointer"
                       onClick={() =>
@@ -410,31 +414,23 @@ function BookingsTable() {
                           {booking.email}
                         </p>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="font-sans text-sm text-cream-200">
-                          {booking.roomTitle}
-                        </p>
+                      <td className="px-5 py-4 text-sm text-cream-200">
+                        {booking.roomTitle}
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="font-mono text-[10px] text-obsidian-300">
-                          {new Date(booking.checkIn).toLocaleDateString()} –{" "}
-                          {new Date(booking.checkOut).toLocaleDateString()}
-                        </p>
+                      <td className="px-5 py-4 text-mono text-[10px] text-obsidian-300 leading-tight">
+                        {new Date(booking.checkIn).toLocaleDateString()} <br />
+                        {new Date(booking.checkOut).toLocaleDateString()}
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="font-mono text-[10px] text-obsidian-300">
-                          {booking.guests?.adults}A{" "}
-                          {booking.guests?.children > 0
-                            ? `${booking.guests.children}C`
-                            : ""}
-                        </p>
+                      <td className="px-5 py-4 text-mono text-[10px] text-obsidian-300">
+                        {booking.guests?.adults}A{" "}
+                        {booking.guests?.children > 0
+                          ? `${booking.guests.children}C`
+                          : ""}
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="font-display text-lg font-light text-gold-400">
-                          {booking.totalPrice
-                            ? `$${booking.totalPrice.toLocaleString()}`
-                            : "—"}
-                        </p>
+                      <td className="px-5 py-4 font-display text-lg font-light text-gold-400">
+                        {booking.totalPrice
+                          ? `$${booking.totalPrice.toLocaleString()}`
+                          : "—"}
                       </td>
                       <td className="px-5 py-4">
                         <Badge variant={badgeVariant(booking.status)}>
@@ -449,7 +445,7 @@ function BookingsTable() {
                             handleStatusChange(booking._id, e.target.value);
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="bg-obsidian-800 border border-obsidian-700 text-cream-100 font-mono text-[10px] px-2 py-1.5 focus:outline-none focus:border-gold-500"
+                          className="bg-obsidian-800 border border-obsidian-700 text-cream-100 font-mono text-[10px] px-2 py-1.5 focus:outline-none focus:border-gold-500 cursor-pointer"
                         >
                           {statusOptions.map((s) => (
                             <option key={s} value={s}>
@@ -459,15 +455,17 @@ function BookingsTable() {
                         </select>
                       </td>
                     </tr>
+
+                    {/* Expanded View */}
                     {expandedId === booking._id && (
-                      <tr className="bg-obsidian-800/40 border-b border-obsidian-800">
+                      <tr className="bg-obsidian-800/40 border-b border-obsidian-700 animate-in slide-in-from-top-1">
                         <td colSpan={7} className="px-5 py-6">
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div>
                               <p className="font-mono text-[10px] text-gold-500 uppercase tracking-widest mb-2">
                                 Confirmation
                               </p>
-                              <p className="font-sans text-cream-200">
+                              <p className="font-sans text-sm text-cream-200">
                                 {booking.confirmationNumber || "—"}
                               </p>
                             </div>
@@ -475,7 +473,7 @@ function BookingsTable() {
                               <p className="font-mono text-[10px] text-gold-500 uppercase tracking-widest mb-2">
                                 Téléphone
                               </p>
-                              <p className="font-sans text-cream-200">
+                              <p className="font-sans text-sm text-cream-200">
                                 {booking.phone || "—"}
                               </p>
                             </div>
@@ -483,22 +481,22 @@ function BookingsTable() {
                               <p className="font-mono text-[10px] text-gold-500 uppercase tracking-widest mb-2">
                                 Demandes spéciales
                               </p>
-                              <p className="font-sans text-cream-200 italic">
+                              <p className="font-sans text-sm text-cream-200 italic leading-relaxed">
                                 {booking.specialRequests ||
-                                  "Aucune demande particulière"}
+                                  "Aucune demande particulière."}
                               </p>
                             </div>
                           </div>
                         </td>
                       </tr>
                     )}
-                  </React.Fragment>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
             {bookings.length === 0 && (
               <div className="text-center py-20">
-                <p className="font-sans text-sm text-obsidian-500">
+                <p className="font-sans text-sm text-obsidian-500 uppercase tracking-widest">
                   {t.admin.noBookings}
                 </p>
               </div>
@@ -509,20 +507,3 @@ function BookingsTable() {
     </div>
   );
 }
-
-// Export avec Suspense pour éviter les erreurs de build Next.js
-export default function AdminBookingsPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="p-10 text-gold-500 font-mono">
-          Loading Admin Panel...
-        </div>
-      }
-    >
-      <BookingsTable />
-    </Suspense>
-  );
-}
-
-import React from "react"; // Nécessaire pour React.Fragment
